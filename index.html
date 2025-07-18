@@ -23,6 +23,17 @@
       border: 6px solid #3D4DFF;
       transition: transform 4s ease-out;
     }
+    #pin {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 20px solid #3D4DFF;
+      margin: 0 auto;
+      position: relative;
+      top: 20px;
+      z-index: 10;
+    }
     #spinBtn {
       margin-top: 30px;
       padding: 15px 30px;
@@ -38,12 +49,30 @@
       font-size: 20px;
       color: #333;
     }
+    form {
+      margin-top: 20px;
+    }
+    input {
+      margin: 5px;
+      padding: 10px;
+      font-size: 14px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
   <h2>여름맞이 디맨드 행운 룰렛 🎉</h2>
+  <div id="pin"></div>
   <canvas id="wheel"></canvas>
-  <br>
+
+  <form id="userForm">
+    <input type="text" id="name" placeholder="이름" required><br>
+    <input type="tel" id="phone" placeholder="전화번호" required><br>
+    <input type="email" id="email" placeholder="이메일" required><br>
+  </form>
+
   <button id="spinBtn">돌리기</button>
   <p id="result"></p>
 
@@ -92,7 +121,16 @@
     drawWheel();
 
     spinBtn.addEventListener("click", () => {
-      const spinAngle = Math.random() * 360 + 1800; // 최소 5바퀴 돌기
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+
+      if (!name || !phone || !email) {
+        alert("이름, 전화번호, 이메일을 모두 입력해주세요.");
+        return;
+      }
+
+      const spinAngle = Math.random() * 360 + 1800;
       canvas.style.transform = `rotate(${spinAngle}deg)`;
 
       const selectedIndex = Math.floor((360 - (spinAngle % 360)) / (360 / prizes.length)) % prizes.length;
@@ -101,10 +139,15 @@
       setTimeout(() => {
         resultText.innerText = `🎁 당첨: ${selectedPrize.name}`;
 
-        // 예: Google Sheet 전송
         fetch("https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec", {
           method: "POST",
-          body: JSON.stringify({ prize: selectedPrize.name, time: new Date().toISOString() }),
+          body: JSON.stringify({
+            prize: selectedPrize.name,
+            time: new Date().toISOString(),
+            name: name,
+            phone: phone,
+            email: email
+          }),
           headers: { "Content-Type": "application/json" }
         });
       }, 4000);
