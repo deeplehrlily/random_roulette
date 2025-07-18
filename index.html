@@ -1,18 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+  <meta charset="UTF-8">
   <title>디맨드 룰렛 이벤트</title>
   <style>
-    body { text-align: center; font-family: sans-serif; }
-    canvas { border: 3px solid #000; margin: 20px 0; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: linear-gradient(180deg, #e2e9ff, #f3f4ff);
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      margin-top: 30px;
+      color: #3D4DFF;
+    }
+    #wheel {
+      margin-top: 30px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 6px solid #3D4DFF;
+      transition: transform 4s ease-out;
+    }
+    #spinBtn {
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #3D4DFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
-  <h2>룰렛을 돌려보세요!</h2>
-  <canvas id="wheel" width="300" height="300"></canvas><br>
-  <button id="spinBtn">🎡 룰렛 돌리기</button>
+  <h2>여름맞이 디맨드 행운 룰렛 🎉</h2>
+  <canvas id="wheel"></canvas>
+  <br>
+  <button id="spinBtn">돌리기</button>
   <p id="result"></p>
-  
-  <script src="spin.js"></script>
+
+  <script>
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spinBtn");
+    const resultText = document.getElementById("result");
+
+    canvas.width = 300;
+    canvas.height = 300;
+
+    const prizes = [
+      { name: "츄파춥스", count: 1500, color: "#F3F4FF" },
+      { name: "네이버페이 5천원", count: 300, color: "#E0E7FF" },
+      { name: "BHC 치킨", count: 200, color: "#CBD5FF" },
+      { name: "츄파춥스", count: 1500, color: "#F3F4FF" },
+      { name: "네이버페이 5천원", count: 300, color: "#E0E7FF" },
+      { name: "BHC 치킨", count: 200, color: "#CBD5FF" }
+    ];
+
+    let angle = 0;
+    const arc = Math.PI * 2 / prizes.length;
+
+    function drawWheel() {
+      for (let i = 0; i < prizes.length; i++) {
+        const prize = prizes[i];
+        const start = angle + i * arc;
+        const end = start + arc;
+        ctx.beginPath();
+        ctx.fillStyle = prize.color;
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 150, start, end);
+        ctx.fill();
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 14px Pretendard";
+        ctx.fillText(prize.name, 120, 10);
+        ctx.restore();
+      }
+    }
+
+    drawWheel();
+
+    spinBtn.addEventListener("click", () => {
+      const spinAngle = Math.random() * 360 + 1800; // 최소 5바퀴 돌기
+      canvas.style.transform = `rotate(${spinAngle}deg)`;
+
+      const selectedIndex = Math.floor((360 - (spinAngle % 360)) / (360 / prizes.length)) % prizes.length;
+      const selectedPrize = prizes[selectedIndex];
+
+      setTimeout(() => {
+        resultText.innerText = `🎁 당첨: ${selectedPrize.name}`;
+
+        // 예: Google Sheet 전송
+        fetch("https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec", {
+          method: "POST",
+          body: JSON.stringify({ prize: selectedPrize.name, time: new Date().toISOString() }),
+          headers: { "Content-Type": "application/json" }
+        });
+      }, 4000);
+    });
+  </script>
 </body>
 </html>
