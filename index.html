@@ -16,10 +16,6 @@
     header {
       padding: 40px 20px 20px;
     }
-    header img {
-      width: 160px;
-      margin-bottom: 12px;
-    }
     h1 {
       font-size: 1.5rem;
       font-weight: 700;
@@ -33,14 +29,14 @@
     }
     #pin {
       position: absolute;
-      top: -15px;
+      top: 135px;
       left: 50%;
       width: 0;
       height: 0;
       border-left: 15px solid transparent;
       border-right: 15px solid transparent;
-      border-bottom: 25px solid #3D4DFF;
-      transform: translateX(-50%);
+      border-top: 25px solid #3D4DFF;
+      transform: translateX(-50%) rotate(180deg);
       z-index: 10;
     }
     canvas#wheel {
@@ -115,6 +111,17 @@
       line-height: 1.6;
       text-align: left;
     }
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #3D4DFF;
+      animation: fall 2s linear forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
     @media (max-width: 480px) {
       h1 { font-size: 1.25rem; }
       #spinBtn { width: 80%; font-size: 0.95rem; }
@@ -123,7 +130,6 @@
 </head>
 <body>
   <header>
-    <img src="https://i.ibb.co/FLyt3x8y/image.png" alt="디맨드 로고">
     <h1>현직자 리뷰 작성<br>꽝없는 룰렛 이벤트</h1>
   </header>
 
@@ -138,7 +144,7 @@
     <div class="modal-content">
       <h3>참여자 정보 입력</h3>
       <input type="text" id="name" placeholder="이름">
-      <input type="tel" id="phone" placeholder="전화번호">
+      <input type="tel" id="phone" placeholder="전화번호 (010-0000-0000)" pattern="010-[0-9]{4}-[0-9]{4}" required>
       <input type="email" id="email" placeholder="이메일">
       <button class="close-modal" onclick="submitUserInfo()">확인</button>
     </div>
@@ -165,23 +171,18 @@
   <script>
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
-    const prizes = [
-      ...Array(1950).fill("츄파춥스"),
-      ...Array(40).fill("네이버페이 5천원"),
-      ...Array(10).fill("BHC 치킨")
-    ];
+    const prizes = ["츄파춥스", "네이버페이 5천원", "BHC 치킨"];
     const colors = ["#f4f7ff", "#d9e2ff", "#c3d4ff"];
-    const arc = Math.PI * 2 / 6;
+    const arc = Math.PI * 2 / prizes.length;
 
     function drawWheel() {
-      const items = ["츄파춥스", "네이버페이 5천원", "BHC 치킨", "츄파춥스", "네이버페이 5천원", "BHC 치킨"];
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < prizes.length; i++) {
         const start = i * arc;
         const end = start + arc;
         ctx.beginPath();
         ctx.moveTo(150, 150);
         ctx.arc(150, 150, 150, start, end);
-        ctx.fillStyle = colors[i % 3];
+        ctx.fillStyle = colors[i];
         ctx.fill();
         ctx.save();
         ctx.translate(150, 150);
@@ -189,7 +190,7 @@
         ctx.textAlign = "right";
         ctx.fillStyle = "#000";
         ctx.font = "bold 14px Pretendard";
-        ctx.fillText(items[i], 130, 10);
+        ctx.fillText(prizes[i], 130, 10);
         ctx.restore();
       }
     }
@@ -199,9 +200,22 @@
     let isSpinning = false;
     let rotation = 0;
 
-    function confetti() {
-      const count = 150, defaults = { origin: { y: 0.6 } };
-      if (typeof confettiJs === 'function') confettiJs(Object.assign({}, defaults, { particleCount: count, spread: 100 }));
+    function randomPrizeIndex() {
+      const rand = Math.random() * 100;
+      if (rand < 0.5) return 2;       // 0.5% - BHC 치킨
+      else if (rand < 2.5) return 1;  // 2% - 네이버페이
+      else return 0;                  // 97.5% - 츄파춥스
+    }
+
+    function launchConfetti() {
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = ["#3D4DFF", "#889CFF", "#B2C0FF"][i % 3];
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 2000);
+      }
     }
 
     document.getElementById("spinBtn").addEventListener("click", () => {
@@ -212,21 +226,20 @@
       spinSound.currentTime = 0;
       spinSound.play();
 
-      const prizeIndex = Math.floor(Math.random() * prizes.length);
-      const resultPrize = prizes[prizeIndex];
-      const segmentIndex = ["츄파춥스", "네이버페이 5천원", "BHC 치킨"].indexOf(resultPrize);
-      const segmentAngle = 360 / 6;
-      const finalRotation = (360 * 5) + 270 - (segmentIndex * segmentAngle);
+      const prizeIndex = randomPrizeIndex();
+      const segmentAngle = 360 / prizes.length;
+      const stopAngle = prizeIndex * segmentAngle;
+      const finalRotation = (360 * 5) + 270 - stopAngle;
 
       rotation += finalRotation;
       canvas.style.transition = "transform 4.5s cubic-bezier(0.33, 1, 0.68, 1)";
-      canvas.style.transform = `rotate(${rotation}deg)`;
+      canvas.style.transform = rotate(${rotation}deg);
 
       setTimeout(() => {
+        launchConfetti();
         document.getElementById("resultModal").style.display = "flex";
-        document.getElementById("prizeText").innerText = `🎁 ${resultPrize}에 당첨되셨습니다!`;
+        document.getElementById("prizeText").innerText = 🎁 ${prizes[prizeIndex]}에 당첨되셨습니다!;
         isSpinning = false;
-        confetti();
       }, 4500);
     });
 
@@ -238,16 +251,20 @@
         alert("정보를 모두 입력해주세요");
         return;
       }
-      const key = `${email}-${phone}`;
+
+      const key = ${email}-${phone};
       if (localStorage.getItem(key)) {
         alert("이미 참여하셨습니다.");
         return;
       }
+
       localStorage.setItem(key, "true");
       document.getElementById("userModal").style.display = "none";
       document.getElementById("spinBtn").style.display = "inline-block";
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
+
+
+
