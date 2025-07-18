@@ -1,18 +1,135 @@
-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>디맨드 룰렛 이벤트</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom, #e8f0ff, #ffffff);
+      color: #111;
+      text-align: center;
+    }
+    header {
+      padding: 40px 20px 20px;
+    }
+    header img {
+      width: 160px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #202020;
+      margin-bottom: 10px;
+    }
+    .wheel-container {
+      position: relative;
+      width: 320px;
+      margin: 0 auto;
+    }
+    #pin {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid #3D4DFF;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    canvas#wheel {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 50%;
+      border: 6px solid #3D4DFF;
+      transition: transform 4.5s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    #spinBtn {
+      margin: 30px auto;
+      padding: 15px 40px;
+      font-size: 1rem;
+      background: #3D4DFF;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .modal, .result-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+    }
+    .modal input {
+      margin: 10px 0;
+      padding: 10px;
+      width: 90%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .close-modal {
+      background: #3D4DFF;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .link-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #3D4DFF;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer {
+      font-size: 13px;
+      color: #555;
+      padding: 30px 20px 50px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+      text-align: left;
+    }
+    @media (max-width: 480px) {
+      h1 { font-size: 1.25rem; }
+      #spinBtn { width: 80%; font-size: 0.95rem; }
+    }
+  </style>
 </head>
 <body>
-  <h2>생산/기능직 채용의 시작과 끝</h2>
-  <img src="logo.png" alt="dmand logo" style="width:140px;" />
+  <header>
+    <img src="https://i.ibb.co/FLyt3x8y/image.png" alt="디맨드 로고">
+    <h1>현직자 리뷰 작성<br>꽝없는 룰렛 이벤트</h1>
+  </header>
+
   <div class="wheel-container">
     <div id="pin"></div>
-    <canvas id="wheel"></canvas>
+    <canvas id="wheel" width="300" height="300"></canvas>
   </div>
 
   <button id="spinBtn" style="display:none;">돌리기</button>
@@ -20,9 +137,9 @@
   <div class="modal" id="userModal">
     <div class="modal-content">
       <h3>참여자 정보 입력</h3>
-      <input type="text" id="name" placeholder="이름" required><br>
-      <input type="tel" id="phone" placeholder="전화번호" required><br>
-      <input type="email" id="email" placeholder="이메일" required><br>
+      <input type="text" id="name" placeholder="이름">
+      <input type="tel" id="phone" placeholder="전화번호">
+      <input type="email" id="email" placeholder="이메일">
       <button class="close-modal" onclick="submitUserInfo()">확인</button>
     </div>
   </div>
@@ -31,20 +148,106 @@
     <div class="modal-content">
       <h3 id="prizeTitle">🎉 축하합니다!</h3>
       <p id="prizeText"></p>
-      <a class="link-button" href="https://dmand.co.kr" target="_blank">디맨드 바로가기</a>
+      <a href="https://dmand.co.kr" target="_blank" class="link-button">디맨드 바로가기</a>
     </div>
   </div>
 
-  <div class="notice">
-    <ul>
-      <li>트래픽 상황에 따라 쿠폰 및 적립금 발급까지 최대 10분 이상 발생할 수 있습니다.</li>
-      <li>현물, 현금 당첨 시 재세공과금이 발생할 수 있습니다.</li>
-      <li>발급 쿠폰 및 포인트는 마이페이지에서 확인 가능합니다.</li>
-      <li>쿠폰 사용 시 중복 사용이 불가할 수 있으며 특정 상품 사용이 제한될 수 있습니다.</li>
-      <li>해당 이벤트는 별도의 공지 없이 변경/종료될 수 있습니다.</li>
-    </ul>
-  </div>
+  <footer>
+    • 트래픽 상황에 따라 쿠폰 및 적립금 발급까지 최대 10분 이상 소요될 수 있습니다.<br>
+    • 현물·현금 당첨 시 제세공과금이 발생할 수 있습니다.<br>
+    • 발급 쿠폰 및 포인트는 마이페이지에서 확인 가능합니다.<br>
+    • 중복 참여 및 쿠폰 중복 사용은 제한됩니다.<br>
+    • 해당 이벤트는 별도 공지 없이 변경 또는 조기 종료될 수 있습니다.
+  </footer>
 
-  <script src="script.js"></script>
+  <audio id="spinSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3aa1a9a560.mp3"></audio>
+
+  <script>
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const prizes = [
+      ...Array(1950).fill("츄파춥스"),
+      ...Array(40).fill("네이버페이 5천원"),
+      ...Array(10).fill("BHC 치킨")
+    ];
+    const colors = ["#f4f7ff", "#d9e2ff", "#c3d4ff"];
+    const arc = Math.PI * 2 / 6;
+
+    function drawWheel() {
+      const items = ["츄파춥스", "네이버페이 5천원", "BHC 치킨", "츄파춥스", "네이버페이 5천원", "BHC 치킨"];
+      for (let i = 0; i < 6; i++) {
+        const start = i * arc;
+        const end = start + arc;
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 150, start, end);
+        ctx.fillStyle = colors[i % 3];
+        ctx.fill();
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 14px Pretendard";
+        ctx.fillText(items[i], 130, 10);
+        ctx.restore();
+      }
+    }
+
+    drawWheel();
+
+    let isSpinning = false;
+    let rotation = 0;
+
+    function confetti() {
+      const count = 150, defaults = { origin: { y: 0.6 } };
+      if (typeof confettiJs === 'function') confettiJs(Object.assign({}, defaults, { particleCount: count, spread: 100 }));
+    }
+
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const spinSound = document.getElementById("spinSound");
+      spinSound.currentTime = 0;
+      spinSound.play();
+
+      const prizeIndex = Math.floor(Math.random() * prizes.length);
+      const resultPrize = prizes[prizeIndex];
+      const segmentIndex = ["츄파춥스", "네이버페이 5천원", "BHC 치킨"].indexOf(resultPrize);
+      const segmentAngle = 360 / 6;
+      const finalRotation = (360 * 5) + 270 - (segmentIndex * segmentAngle);
+
+      rotation += finalRotation;
+      canvas.style.transition = "transform 4.5s cubic-bezier(0.33, 1, 0.68, 1)";
+      canvas.style.transform = `rotate(${rotation}deg)`;
+
+      setTimeout(() => {
+        document.getElementById("resultModal").style.display = "flex";
+        document.getElementById("prizeText").innerText = `🎁 ${resultPrize}에 당첨되셨습니다!`;
+        isSpinning = false;
+        confetti();
+      }, 4500);
+    });
+
+    function submitUserInfo() {
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      if (!name || !phone || !email) {
+        alert("정보를 모두 입력해주세요");
+        return;
+      }
+      const key = `${email}-${phone}`;
+      if (localStorage.getItem(key)) {
+        alert("이미 참여하셨습니다.");
+        return;
+      }
+      localStorage.setItem(key, "true");
+      document.getElementById("userModal").style.display = "none";
+      document.getElementById("spinBtn").style.display = "inline-block";
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
