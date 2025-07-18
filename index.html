@@ -13,14 +13,11 @@
       color: #111;
       text-align: center;
     }
-    header {
-      padding: 40px 20px 20px;
-    }
     h1 {
       font-size: 1.5rem;
       font-weight: 700;
       color: #202020;
-      margin-bottom: 10px;
+      margin: 40px 20px 20px;
     }
     .wheel-container {
       position: relative;
@@ -113,15 +110,19 @@
     }
     .confetti {
       position: fixed;
+      top: 50%;
+      left: 50%;
       width: 10px;
       height: 10px;
-      background: #3D4DFF;
-      animation: fall 2s linear forwards;
+      background-color: #3D4DFF;
+      z-index: 200;
+      animation: confetti-fall 2s ease-out forwards;
     }
-    @keyframes fall {
-      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    @keyframes confetti-fall {
+      0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-50%, 300%) rotate(720deg); opacity: 0; }
     }
+
     @media (max-width: 480px) {
       h1 { font-size: 1.25rem; }
       #spinBtn { width: 80%; font-size: 0.95rem; }
@@ -129,9 +130,7 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>현직자 리뷰 작성<br>꽝없는 룰렛 이벤트</h1>
-  </header>
+  <h1>현직자 리뷰 작성<br>꽝없는 룰렛 이벤트</h1>
 
   <div class="wheel-container">
     <div id="pin"></div>
@@ -144,7 +143,7 @@
     <div class="modal-content">
       <h3>참여자 정보 입력</h3>
       <input type="text" id="name" placeholder="이름">
-      <input type="tel" id="phone" placeholder="전화번호 (010-0000-0000)" pattern="010-[0-9]{4}-[0-9]{4}" required>
+      <input type="tel" id="phone" placeholder="전화번호 (010-0000-0000)" pattern="010-[0-9]{4}-[0-9]{4}">
       <input type="email" id="email" placeholder="이메일">
       <button class="close-modal" onclick="submitUserInfo()">확인</button>
     </div>
@@ -175,6 +174,12 @@
     const colors = ["#f4f7ff", "#d9e2ff", "#c3d4ff"];
     const arc = Math.PI * 2 / prizes.length;
 
+    const inventory = {
+      "츄파춥스": 1950,
+      "네이버페이 5천원": 40,
+      "BHC 치킨": 10
+    };
+
     function drawWheel() {
       for (let i = 0; i < prizes.length; i++) {
         const start = i * arc;
@@ -200,59 +205,72 @@
     let isSpinning = false;
     let rotation = 0;
 
-    function randomPrizeIndex() {
-      const rand = Math.random() * 100;
-      if (rand < 0.5) return 2;       // 0.5% - BHC 치킨
-      else if (rand < 2.5) return 1;  // 2% - 네이버페이
-      else return 0;                  // 97.5% - 츄파춥스
-    }
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      if (isSpinning) return;
+      isSpinning = true;
 
-    function launchConfetti() {
-      for (let i = 0; i < 100; i++) {
+      document.getElementById("spinSound").play();
+
+      let available = [];
+      prizes.forEach(p => {
+        if (inventory[p] > 0) {
+          const count = inventory[p];
+          for (let i = 0; i < count; i++) {
+            available.push(p);
+          }
+        }
+      });
+
+      const selectedPrize = available[Math.floor(Math.random() * available.length)];
+      const index = prizes.indexOf(selectedPrize);
+      inventory[selectedPrize]--;
+
+      const segmentAngle = 360 / prizes.length;
+      const stopAngle = index * segmentAngle;
+      const finalRotation = (360 * 5) + 270 - stopAngle;
+
+      rotation += finalRotation;
+      canvas.style.transition = "transform 4.5s cubic-bezier(0.33, 1, 0.68, 1)";
+      canvas.style.transform = `rotate(${rotation}deg)`;
+
+      setTimeout(() => {
+        document.getElementById("resultModal").style.display = "flex";
+        document.getElementById("prizeText").innerText = `🎁 ${selectedPrize}에 당첨되셨습니다!`;
+        triggerConfetti();
+        isSpinning = false;
+      }, 4500);
+    });
+
+    function triggerConfetti() {
+      for (let i = 0; i < 30; i++) {
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = ["#3D4DFF", "#889CFF", "#B2C0FF"][i % 3];
+        confetti.style.left = `${50 + Math.random() * 40 - 20}%`;
+        confetti.style.top = `${50 + Math.random() * 10 - 5}%`;
+        confetti.style.backgroundColor = ["#3D4DFF", "#5B6EFF", "#8294FF"][Math.floor(Math.random() * 3)];
+        confetti.style.width = `${6 + Math.random() * 4}px`;
+        confetti.style.height = `${6 + Math.random() * 4}px`;
         document.body.appendChild(confetti);
         setTimeout(() => confetti.remove(), 2000);
       }
     }
 
-    document.getElementById("spinBtn").addEventListener("click", () => {
-      if (isSpinning) return;
-      isSpinning = true;
-
-      const spinSound = document.getElementById("spinSound");
-      spinSound.currentTime = 0;
-      spinSound.play();
-
-      const prizeIndex = randomPrizeIndex();
-      const segmentAngle = 360 / prizes.length;
-      const stopAngle = prizeIndex * segmentAngle;
-      const finalRotation = (360 * 5) + 270 - stopAngle;
-
-      rotation += finalRotation;
-      canvas.style.transition = "transform 4.5s cubic-bezier(0.33, 1, 0.68, 1)";
-      canvas.style.transform = rotate(${rotation}deg);
-
-      setTimeout(() => {
-        launchConfetti();
-        document.getElementById("resultModal").style.display = "flex";
-        document.getElementById("prizeText").innerText = 🎁 ${prizes[prizeIndex]}에 당첨되셨습니다!;
-        isSpinning = false;
-      }, 4500);
-    });
-
     function submitUserInfo() {
       const name = document.getElementById("name").value;
       const phone = document.getElementById("phone").value;
       const email = document.getElementById("email").value;
+      const phoneRegex = /^010-\d{4}-\d{4}$/;
+
       if (!name || !phone || !email) {
         alert("정보를 모두 입력해주세요");
         return;
       }
+      if (!phoneRegex.test(phone)) {
+        alert("전화번호 형식을 확인해주세요. (예: 010-1234-5678)");
+        return;
+      }
 
-      const key = ${email}-${phone};
+      const key = `${email}-${phone}`;
       if (localStorage.getItem(key)) {
         alert("이미 참여하셨습니다.");
         return;
@@ -265,6 +283,7 @@
   </script>
 </body>
 </html>
+
 
 
 
