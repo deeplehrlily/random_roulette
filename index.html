@@ -1,157 +1,50 @@
-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>디맨드 룰렛 이벤트</title>
-  <style>
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background: linear-gradient(180deg, #e2e9ff, #f3f4ff);
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    h2 {
-      margin-top: 30px;
-      color: #3D4DFF;
-    }
-    #wheel {
-      margin-top: 30px;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      border: 6px solid #3D4DFF;
-      transition: transform 4s ease-out;
-    }
-    #pin {
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 20px solid #3D4DFF;
-      margin: 0 auto;
-      position: relative;
-      top: 20px;
-      z-index: 10;
-    }
-    #spinBtn {
-      margin-top: 30px;
-      padding: 15px 30px;
-      font-size: 18px;
-      background-color: #3D4DFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 20px;
-      color: #333;
-    }
-    form {
-      margin-top: 20px;
-    }
-    input {
-      margin: 5px;
-      padding: 10px;
-      font-size: 14px;
-      width: 200px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
 </head>
 <body>
-  <h2>여름맞이 디맨드 행운 룰렛 🎉</h2>
-  <div id="pin"></div>
-  <canvas id="wheel"></canvas>
+  <h2>생산/기능직 채용의 시작과 끝</h2>
+  <img src="logo.png" alt="dmand logo" style="width:140px;" />
+  <div class="wheel-container">
+    <div id="pin"></div>
+    <canvas id="wheel"></canvas>
+  </div>
 
-  <form id="userForm">
-    <input type="text" id="name" placeholder="이름" required><br>
-    <input type="tel" id="phone" placeholder="전화번호" required><br>
-    <input type="email" id="email" placeholder="이메일" required><br>
-  </form>
+  <button id="spinBtn" style="display:none;">돌리기</button>
 
-  <button id="spinBtn">돌리기</button>
-  <p id="result"></p>
+  <div class="modal" id="userModal">
+    <div class="modal-content">
+      <h3>참여자 정보 입력</h3>
+      <input type="text" id="name" placeholder="이름" required><br>
+      <input type="tel" id="phone" placeholder="전화번호" required><br>
+      <input type="email" id="email" placeholder="이메일" required><br>
+      <button class="close-modal" onclick="submitUserInfo()">확인</button>
+    </div>
+  </div>
 
-  <script>
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const resultText = document.getElementById("result");
+  <div class="result-modal" id="resultModal" style="display:none;">
+    <div class="modal-content">
+      <h3 id="prizeTitle">🎉 축하합니다!</h3>
+      <p id="prizeText"></p>
+      <a class="link-button" href="https://dmand.co.kr" target="_blank">디맨드 바로가기</a>
+    </div>
+  </div>
 
-    canvas.width = 300;
-    canvas.height = 300;
+  <div class="notice">
+    <ul>
+      <li>트래픽 상황에 따라 쿠폰 및 적립금 발급까지 최대 10분 이상 발생할 수 있습니다.</li>
+      <li>현물, 현금 당첨 시 재세공과금이 발생할 수 있습니다.</li>
+      <li>발급 쿠폰 및 포인트는 마이페이지에서 확인 가능합니다.</li>
+      <li>쿠폰 사용 시 중복 사용이 불가할 수 있으며 특정 상품 사용이 제한될 수 있습니다.</li>
+      <li>해당 이벤트는 별도의 공지 없이 변경/종료될 수 있습니다.</li>
+    </ul>
+  </div>
 
-    const prizes = [
-      { name: "츄파춥스", count: 1500, color: "#F3F4FF" },
-      { name: "네이버페이 5천원", count: 300, color: "#E0E7FF" },
-      { name: "BHC 치킨", count: 200, color: "#CBD5FF" },
-      { name: "츄파춥스", count: 1500, color: "#F3F4FF" },
-      { name: "네이버페이 5천원", count: 300, color: "#E0E7FF" },
-      { name: "BHC 치킨", count: 200, color: "#CBD5FF" }
-    ];
-
-    let angle = 0;
-    const arc = Math.PI * 2 / prizes.length;
-
-    function drawWheel() {
-      for (let i = 0; i < prizes.length; i++) {
-        const prize = prizes[i];
-        const start = angle + i * arc;
-        const end = start + arc;
-        ctx.beginPath();
-        ctx.fillStyle = prize.color;
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 150, start, end);
-        ctx.fill();
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 14px Pretendard";
-        ctx.fillText(prize.name, 120, 10);
-        ctx.restore();
-      }
-    }
-
-    drawWheel();
-
-    spinBtn.addEventListener("click", () => {
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const email = document.getElementById("email").value;
-
-      if (!name || !phone || !email) {
-        alert("이름, 전화번호, 이메일을 모두 입력해주세요.");
-        return;
-      }
-
-      const spinAngle = Math.random() * 360 + 1800;
-      canvas.style.transform = `rotate(${spinAngle}deg)`;
-
-      const selectedIndex = Math.floor((360 - (spinAngle % 360)) / (360 / prizes.length)) % prizes.length;
-      const selectedPrize = prizes[selectedIndex];
-
-      setTimeout(() => {
-        resultText.innerText = `🎁 당첨: ${selectedPrize.name}`;
-
-        fetch("https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec", {
-          method: "POST",
-          body: JSON.stringify({
-            prize: selectedPrize.name,
-            time: new Date().toISOString(),
-            name: name,
-            phone: phone,
-            email: email
-          }),
-          headers: { "Content-Type": "application/json" }
-        });
-      }, 4000);
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
