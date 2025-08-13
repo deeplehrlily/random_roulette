@@ -1,284 +1,89 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>디맨드 룰렛 이벤트</title>
-  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Pretendard', sans-serif;
-      margin: 0;
-      background: linear-gradient(to bottom, #e8f0ff, #ffffff);
-      color: #111;
-      text-align: center;
-    }
-    header {
-      padding: 40px 20px 20px;
-    }
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #202020;
-      margin-bottom: 10px;
-    }
-    .wheel-container {
-      position: relative;
-      width: 320px;
-      margin: 0 auto;
-    }
-    #pin {
-      position: absolute;
-      top: 135px;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-top: 25px solid #3D4DFF;
-      transform: translateX(-50%) rotate(180deg);
-      z-index: 10;
-    }
-    canvas#wheel {
-      width: 100%;
-      max-width: 300px;
-      height: auto;
-      border-radius: 50%;
-      border: 6px solid #3D4DFF;
-      transition: transform 4.5s cubic-bezier(0.33, 1, 0.68, 1);
-    }
-    #spinBtn {
-      margin: 30px auto;
-      padding: 15px 40px;
-      font-size: 1rem;
-      background: #3D4DFF;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .modal, .result-modal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 100;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 30px 20px;
-      border-radius: 10px;
-      text-align: center;
-      width: 90%;
-      max-width: 320px;
-    }
-    .modal input {
-      margin: 10px 0;
-      padding: 10px;
-      width: 90%;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    .close-modal {
-      background: #3D4DFF;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .link-button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #3D4DFF;
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    footer {
-      font-size: 13px;
-      color: #555;
-      padding: 30px 20px 50px;
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.6;
-      text-align: left;
-    }
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: #3D4DFF;
-      animation: fall 2s linear forwards;
-    }
-    @keyframes fall {
-      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-    }
-    @media (max-width: 480px) {
-      h1 { font-size: 1.25rem; }
-      #spinBtn { width: 80%; font-size: 0.95rem; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Korean Roulette: Spin to Win!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>현직자 리뷰 작성<br>꽝없는 룰렛 이벤트</h1>
-  </header>
-
-  <div class="wheel-container">
-    <div id="pin"></div>
-    <canvas id="wheel" width="300" height="300"></canvas>
+  <div class="main-container">
+    <header class="header">
+      <h1 class="title">Korean Roulette</h1>
+      <p class="subtitle">Experience the thrill of chance in a vibrant atmosphere!</p>
+    </header>
+    
+    <main class="game-section">
+      <div class="wheel-container">
+        <div class="wheel-pointer"></div>
+        <canvas id="rouletteWheel" width="400" height="400"></canvas>
+      </div>
+      
+      <div class="controls">
+        <button class="spin-button" id="spinButton">
+          <span class="button-text">Spin to Win!</span>
+          <div class="loading-spinner" style="display: none;"></div>
+        </button>
+      </div>
+    </main>
+    
+    <footer class="game-info">
+      <div class="info-card">
+        <h3>게임 안내</h3>
+        <ul>
+          <li>참여하고 푸짐한 상품을 받아가세요!</li>
+          <li>상품 재고가 소진되면 해당 상품은 당첨에서 제외됩니다</li>
+          <li>트래픽 상황에 따라 쿠폰 발급까지 최대 10분 소요될 수 있습니다</li>
+        </ul>
+      </div>
+    </footer>
   </div>
 
-  <button id="spinBtn" style="display:none;">돌리기</button>
-
-  <div class="modal" id="userModal">
+  <!-- User Info Modal -->
+  <div class="modal-overlay" id="userModal">
     <div class="modal-content">
-      <h3>참여자 정보 입력</h3>
-      <input type="text" id="name" placeholder="이름">
-      <input type="tel" id="phone" placeholder="전화번호 (010-0000-0000)" pattern="010-[0-9]{4}-[0-9]{4}" required>
-      <input type="email" id="email" placeholder="이메일">
-      <button class="close-modal" onclick="submitUserInfo()">확인</button>
+      <div class="modal-header">
+        <h2>참여자 정보 입력</h2>
+        <p>정보를 입력하고 룰렛에 참여하세요!</p>
+      </div>
+      
+      <form class="user-form" id="userForm">
+        <div class="form-group">
+          <label for="userName">이름</label>
+          <input type="text" id="userName" placeholder="이름을 입력해주세요" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="userPhone">전화번호</label>
+          <input type="tel" id="userPhone" placeholder="010-0000-0000" maxlength="13" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="userEmail">이메일</label>
+          <input type="email" id="userEmail" placeholder="이메일을 입력해주세요" required>
+        </div>
+        
+        <button type="submit" class="submit-button">참여하기</button>
+      </form>
     </div>
   </div>
 
-  <div class="result-modal" id="resultModal" style="display:none;">
-    <div class="modal-content">
-      <h3 id="prizeTitle">🎉 축하합니다!</h3>
-      <p id="prizeText"></p>
-      <a href="https://dmand.co.kr" target="_blank" class="link-button">디맨드 바로가기</a>
+  <!-- Result Modal -->
+  <div class="modal-overlay" id="resultModal" style="display: none;">
+    <div class="modal-content result-content">
+      <div class="prize-display">
+        <div class="prize-icon" id="prizeIcon">🎉</div>
+        <h2 class="prize-title">축하합니다!</h2>
+        <p class="prize-description" id="prizeDescription"></p>
+      </div>
+      
+      <div class="result-actions">
+        <a href="https://dmand.co.kr" target="_blank" class="action-button">디맨드 바로가기</a>
+      </div>
     </div>
   </div>
 
-  <footer>
-    • 트래픽 상황에 따라 쿠폰 및 적립금 발급까지 최대 10분 이상 소요될 수 있습니다.<br>
-    • 현물·현금 당첨 시 제세공과금이 발생할 수 있습니다.<br>
-    • 발급 쿠폰 및 포인트는 마이페이지에서 확인 가능합니다.<br>
-    • 중복 참여 및 쿠폰 중복 사용은 제한됩니다.<br>
-    • 해당 이벤트는 별도 공지 없이 변경 또는 조기 종료될 수 있습니다.
-  </footer>
-
-  <audio id="spinSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3aa1a9a560.mp3"></audio>
-
-  <script>
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const prizes = ["츄파춥스", "네이버페이 5천원", "BHC 치킨"];
-    const colors = ["#f4f7ff", "#d9e2ff", "#c3d4ff"];
-    const arc = Math.PI * 2 / prizes.length;
-
-    function drawWheel() {
-      for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
-        const end = start + arc;
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 150, start, end);
-        ctx.fillStyle = colors[i];
-        ctx.fill();
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 14px Pretendard";
-        ctx.fillText(prizes[i], 130, 10);
-        ctx.restore();
-      }
-    }
-
-    drawWheel();
-
-    let isSpinning = false;
-    let rotation = 0;
-    let currentUser = {};
-
-    function randomPrizeIndex() {
-      const rand = Math.random() * 100;
-      if (rand < 0.5) return 2;       // 0.5% - BHC
-      else if (rand < 2.5) return 1;  // 2.0% - 네이버페이
-      else return 0;                  // 97.5% - 츄파춥스
-    }
-
-    function launchConfetti() {
-      for (let i = 0; i < 100; i++) {
-        const confetti = document.createElement("div");
-        confetti.classList.add("confetti");
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = ["#3D4DFF", "#889CFF", "#B2C0FF"][i % 3];
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 2000);
-      }
-    }
-
-    document.getElementById("spinBtn").addEventListener("click", () => {
-      if (isSpinning) return;
-      isSpinning = true;
-
-      const spinSound = document.getElementById("spinSound");
-      spinSound.currentTime = 0;
-      spinSound.play();
-
-      const prizeIndex = randomPrizeIndex();
-      const segmentAngle = 360 / prizes.length;
-      const stopAngle = prizeIndex * segmentAngle;
-      const finalRotation = (360 * 5) + 270 - stopAngle;
-
-      rotation += finalRotation;
-      canvas.style.transition = "transform 4.5s cubic-bezier(0.33, 1, 0.68, 1)";
-      canvas.style.transform = `rotate(${rotation}deg)`;
-
-      setTimeout(() => {
-        launchConfetti();
-        document.getElementById("resultModal").style.display = "flex";
-        document.getElementById("prizeText").innerText = `🎁 ${prizes[prizeIndex]}에 당첨되셨습니다!`;
-        isSpinning = false;
-        sendToGoogleSheet(currentUser.name, currentUser.phone, currentUser.email, prizes[prizeIndex]);
-      }, 4500);
-    });
-
-    function submitUserInfo() {
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const email = document.getElementById("email").value;
-      if (!name || !phone || !email) {
-        alert("정보를 모두 입력해주세요");
-        return;
-      }
-
-      const key = `${email}-${phone}`;
-      if (localStorage.getItem(key)) {
-        alert("이미 참여하셨습니다.");
-        return;
-      }
-
-      localStorage.setItem(key, "true");
-      currentUser = { name, phone, email };
-      document.getElementById("userModal").style.display = "none";
-      document.getElementById("spinBtn").style.display = "inline-block";
-    }
-
-    function sendToGoogleSheet(name, phone, email, prize) {
-      fetch("https://script.google.com/macros/s/AKfycbwss2TIt-ujTFUbGauS9hXnN8gRgr9oq5qt5LRy5kZjPWGIXoT73q21YsysuRBde5ia0A/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, prize })
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
