@@ -20,7 +20,7 @@ interface Prize {
 export default function KoreanRoulette() {
   const [prizes, setPrizes] = useState<Prize[]>([
     {
-      name: "츄파츕스",
+      name: "츄파 suç트스",
       inventory: 1494,
       color: "#FF6B6B",
       angle: 0,
@@ -133,9 +133,8 @@ export default function KoreanRoulette() {
       )
 
       try {
-        // Save winner information
         const winnerResponse = await fetch(
-          "https://script.google.com/macros/s/AKfycbzwoiWvBlBjG7GPhLlezWvYFp4j7c3UWUfmcKsL184ZD13mau_RzC4Rv7rR7wBWp9DR1A/exec",
+          "https://script.google.com/macros/s/AKfycbzidh5mXl6j0T68oqoJCdS5HlTxAaBJGRqEi2HM4oSRDEzATJlkHvuKGW_y2V-u0c3SZg/exec",
           {
             method: "POST",
             mode: "no-cors",
@@ -153,9 +152,8 @@ export default function KoreanRoulette() {
           },
         )
 
-        // Update inventory in Google Sheets
         const inventoryResponse = await fetch(
-          "https://script.google.com/macros/s/AKfycbzwoiWvBlBjG7GPhLlezWvYFp4j7c3UWUfmcKsL184ZD13mau_RzC4Rv7rR7wBWp9DR1A/exec",
+          "https://script.google.com/macros/s/AKfycbzidh5mXl6j0T68oqoJCdS5HlTxAaBJGRqEi2HM4oSRDEzATJlkHvuKGW_y2V-u0c3SZg/exec",
           {
             method: "POST",
             mode: "no-cors",
