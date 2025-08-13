@@ -181,25 +181,25 @@ export default function KoreanRoulette() {
   const totalInventory = prizes.reduce((sum, prize) => sum + prize.inventory, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 to-cyan-200 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 to-cyan-200 flex items-center justify-center p-2 sm:p-4 lg:p-8 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-20 w-8 h-8 text-pink-300 animate-pulse">
+        <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-6 sm:w-8 h-6 sm:h-8 text-pink-300 animate-pulse">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </div>
-        <div className="absolute top-40 right-32 w-6 h-6 text-orange-300 animate-bounce">
+        <div className="absolute top-32 sm:top-40 right-16 sm:right-32 w-4 sm:w-6 h-4 sm:h-6 text-orange-300 animate-bounce">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </div>
-        <div className="absolute bottom-32 left-40 w-10 h-10 text-yellow-300 animate-pulse delay-1000">
+        <div className="absolute bottom-20 sm:bottom-32 left-20 sm:left-40 w-8 sm:w-10 h-8 sm:h-10 text-yellow-300 animate-pulse delay-1000">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </div>
-        <div className="absolute top-60 right-20 w-12 h-12 bg-pink-200 rounded-full opacity-60 animate-pulse"></div>
-        <div className="absolute bottom-40 right-60 w-8 h-8 bg-orange-200 rounded-full opacity-40 animate-bounce delay-500"></div>
+        <div className="absolute top-40 sm:top-60 right-10 sm:right-20 w-8 sm:w-12 h-8 sm:h-12 bg-pink-200 rounded-full opacity-60 animate-pulse"></div>
+        <div className="absolute bottom-24 sm:bottom-40 right-32 sm:right-60 w-6 sm:w-8 h-6 sm:h-8 bg-orange-200 rounded-full opacity-40 animate-bounce delay-500"></div>
       </div>
 
       {showConfetti && (
@@ -221,17 +221,19 @@ export default function KoreanRoulette() {
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto text-center relative z-10">
-        <div className="mb-12">
-          <div className="w-16 h-16 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-6 flex items-center justify-center animate-pulse shadow-lg">
-            <span className="text-2xl">🎁</span>
+      <div className="w-full max-w-sm sm:max-w-md lg:max-w-2xl mx-auto text-center relative z-10 px-4">
+        <div className="mb-8 sm:mb-12">
+          <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center animate-pulse shadow-lg">
+            <span className="text-xl sm:text-2xl">🎁</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">워크리뷰 행운의 룰렛</h1>
-          <p className="text-gray-600 text-lg">참여하고 상품을 받아보세요</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
+            워크리뷰 행운의 룰렛
+          </h1>
+          <p className="text-gray-600 text-base sm:text-lg">참여하고 상품을 받아보세요</p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 backdrop-blur-sm border border-white/50">
-          <div className="relative w-80 h-80 mx-auto mb-8">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 backdrop-blur-sm border border-white/50">
+          <div className="relative w-64 sm:w-72 lg:w-80 h-64 sm:h-72 lg:h-80 mx-auto mb-6 sm:mb-8">
             <div
               ref={wheelRef}
               className="w-full h-full relative z-10"
@@ -240,7 +242,13 @@ export default function KoreanRoulette() {
                 transition: isSpinning ? "transform 3s cubic-bezier(0.23, 1, 0.32, 1)" : "none",
               }}
             >
-              <svg width="320" height="320" viewBox="0 0 320 320" className="drop-shadow-xl">
+              <svg
+                width="100%"
+                height="100%"
+                viewBox="0 0 320 320"
+                className="drop-shadow-xl"
+                style={{ maxWidth: "320px", maxHeight: "320px" }}
+              >
                 <defs>
                   <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#000000" floodOpacity="0.1" />
@@ -325,15 +333,17 @@ export default function KoreanRoulette() {
             <DialogTrigger asChild>
               <Button
                 disabled={isSpinning || totalInventory === 0}
-                className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-12 py-3 rounded-full text-lg shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-8 sm:px-12 py-2 sm:py-3 rounded-full text-base sm:text-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
               >
                 {isSpinning ? "돌리는 중..." : "참여하기"}
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="w-[95vw] max-w-md mx-auto">
               <DialogHeader>
-                <DialogTitle className="text-center text-xl font-bold text-gray-900">참여 정보 입력</DialogTitle>
+                <DialogTitle className="text-center text-lg sm:text-xl font-bold text-gray-900">
+                  참여 정보 입력
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -345,7 +355,7 @@ export default function KoreanRoulette() {
                     value={formData.name}
                     onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="이름을 입력하세요"
-                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg"
+                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg h-12"
                   />
                 </div>
                 <div className="space-y-2">
@@ -358,7 +368,7 @@ export default function KoreanRoulette() {
                     onChange={handlePhoneChange}
                     placeholder="010-0000-0000"
                     maxLength={13}
-                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg"
+                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg h-12"
                   />
                 </div>
                 <div className="space-y-2">
@@ -371,12 +381,12 @@ export default function KoreanRoulette() {
                     value={formData.email}
                     onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                     placeholder="example@email.com"
-                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg"
+                    className="border-gray-200 focus:border-[#6CD1E8] rounded-lg h-12"
                   />
                 </div>
                 <Button
                   onClick={handleFormSubmit}
-                  className="w-full bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold py-2 rounded-lg mt-6"
+                  className="w-full bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold py-3 rounded-lg mt-6 h-12"
                 >
                   룰렛 돌리기
                 </Button>
@@ -386,20 +396,20 @@ export default function KoreanRoulette() {
         </div>
 
         <Dialog open={showResult} onOpenChange={setShowResult}>
-          <DialogContent className="sm:max-w-md text-center">
+          <DialogContent className="w-[95vw] max-w-md mx-auto text-center">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-gray-900 mb-4">🎉 축하합니다!</DialogTitle>
+              <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">🎉 축하합니다!</DialogTitle>
             </DialogHeader>
             {winner && (
               <div className="py-6">
-                <div className="w-20 h-20 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-4 flex items-center justify-center animate-bounce shadow-xl">
-                  <span className="text-3xl">{winner.emoji}</span>
+                <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-4 flex items-center justify-center animate-bounce shadow-xl">
+                  <span className="text-2xl sm:text-3xl">{winner.emoji}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{winner.name}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">츄파 suç트스</h3>
                 <p className="text-gray-600 mb-6">당첨되었습니다!</p>
                 <Button
                   onClick={() => window.open("https://www.dmand.co.kr/", "_blank")}
-                  className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-6 py-2 rounded-lg inline-flex items-center gap-2 shadow-lg transition-all duration-300 transform hover:scale-105"
+                  className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-6 py-3 rounded-lg inline-flex items-center gap-2 shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
                 >
                   디맨드 바로가기 <ExternalLink className="w-4 h-4" />
                 </Button>
@@ -408,9 +418,9 @@ export default function KoreanRoulette() {
           </DialogContent>
         </Dialog>
 
-        <div className="bg-white/80 rounded-xl p-6 mb-6 text-left">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">이벤트 안내</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
+        <div className="bg-white/80 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 text-left">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">이벤트 안내</h3>
+          <ul className="space-y-2 text-xs sm:text-sm text-gray-700 leading-relaxed">
             <li>• 당첨된 물품은 영업일 기준 2-3일내 작성해주신 정보를 통해서 전달드립니다.</li>
             <li>• 전달 받지 못할 경우 디맨드 카카오채널 혹은 cs@deeplehr.com으로 문의주시기 바랍니다.</li>
             <li>• 현물·현금 당첨 시 제세공과금이 발생할 수 있습니다.</li>
@@ -419,11 +429,11 @@ export default function KoreanRoulette() {
         </div>
 
         <div className="opacity-5 hover:opacity-100 transition-opacity duration-500">
-          <div className="bg-white/50 rounded-lg p-4 text-xs text-gray-500">
-            <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white/50 rounded-lg p-3 sm:p-4 text-xs text-gray-500">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
               {prizes.map((prize, index) => (
-                <div key={index}>
-                  <div>{prize.name}</div>
+                <div key={index} className="text-center sm:text-left">
+                  <div className="font-medium">{prize.name}</div>
                   <div>재고: {prize.inventory}</div>
                 </div>
               ))}
