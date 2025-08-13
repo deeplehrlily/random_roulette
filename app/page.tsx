@@ -405,7 +405,7 @@ export default function KoreanRoulette() {
                 <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-4 flex items-center justify-center animate-bounce shadow-xl">
                   <span className="text-2xl sm:text-3xl">{winner.emoji}</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">츄파 suç트스</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">츄파츕스</h3>
                 <p className="text-gray-600 mb-6">당첨되었습니다!</p>
                 <Button
                   onClick={() => window.open("https://www.dmand.co.kr/", "_blank")}
