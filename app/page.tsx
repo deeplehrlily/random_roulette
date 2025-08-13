@@ -226,13 +226,7 @@ export default function KoreanRoulette() {
       <div className="max-w-2xl mx-auto text-center relative z-10">
         <div className="mb-12">
           <div className="w-16 h-16 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-6 flex items-center justify-center animate-pulse shadow-lg">
-            <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-              <path d="M12 2 L12 12 L22 12" stroke="currentColor" strokeWidth="2" />
-              <path d="M12 12 L2 12" stroke="currentColor" strokeWidth="1" />
-              <path d="M12 12 L12 22" stroke="currentColor" strokeWidth="1" />
-              <circle cx="12" cy="12" r="2" fill="currentColor" />
-            </svg>
+            <span className="text-2xl">🎁</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">워크리뷰 행운의 룰렛</h1>
           <p className="text-gray-600 text-lg">참여하고 상품을 받아보세요</p>
