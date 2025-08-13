@@ -105,11 +105,13 @@ export default function KoreanRoulette() {
     const random = Math.random() * totalInventory
     let currentSum = 0
     let selectedPrize = prizes[0]
+    let prizeIndex = 0
 
-    for (const prize of prizes) {
-      currentSum += prize.inventory
+    for (let i = 0; i < prizes.length; i++) {
+      currentSum += prizes[i].inventory
       if (random <= currentSum) {
-        selectedPrize = prize
+        selectedPrize = prizes[i]
+        prizeIndex = i
         break
       }
     }
@@ -125,27 +127,55 @@ export default function KoreanRoulette() {
       setShowResult(true)
       setShowConfetti(true)
 
+      const newInventory = Math.max(0, selectedPrize.inventory - 1)
       setPrizes((prev) =>
-        prev.map((prize) =>
-          prize.name === selectedPrize.name ? { ...prize, inventory: Math.max(0, prize.inventory - 1) } : prize,
-        ),
+        prev.map((prize) => (prize.name === selectedPrize.name ? { ...prize, inventory: newInventory } : prize)),
       )
 
       try {
-        await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "addWinner",
-            name: formData.name,
-            phone: formData.phone,
-            email: formData.email,
-            prize: selectedPrize.name,
-            timestamp: new Date().toISOString(),
-          }),
-        })
+        // Save winner information
+        const winnerResponse = await fetch(
+          "https://script.google.com/macros/s/AKfycbzwoiWvBlBjG7GPhLlezWvYFp4j7c3UWUfmcKsL184ZD13mau_RzC4Rv7rR7wBWp9DR1A/exec",
+          {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "addWinner",
+              name: formData.name,
+              phone: formData.phone,
+              email: formData.email,
+              prize: selectedPrize.name,
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        )
+
+        // Update inventory in Google Sheets
+        const inventoryResponse = await fetch(
+          "https://script.google.com/macros/s/AKfycbzwoiWvBlBjG7GPhLlezWvYFp4j7c3UWUfmcKsL184ZD13mau_RzC4Rv7rR7wBWp9DR1A/exec",
+          {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "updateInventory",
+              prizeIndex: prizeIndex,
+              prizeName: selectedPrize.name,
+              newInventory: newInventory,
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        )
+
+        console.log("Data successfully sent to Google Sheets")
       } catch (error) {
-        console.error("Failed to save winner:", error)
+        console.error("Failed to save to Google Sheets:", error)
+        alert("당첨 정보 저장 중 오류가 발생했습니다. 고객센터로 문의해주세요.")
       }
     }, 3000)
   }
