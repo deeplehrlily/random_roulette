@@ -20,7 +20,7 @@ interface Prize {
 export default function KoreanRoulette() {
   const [prizes, setPrizes] = useState<Prize[]>([
     {
-      name: "츄파 suç트스",
+      name: "츄파츕스",
       inventory: 1494,
       color: "#FF6B6B",
       angle: 0,
