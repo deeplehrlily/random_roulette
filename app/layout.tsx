@@ -5,8 +5,8 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "워크리뷰 행운의 룰렛",
-  description: "워크리뷰 행운의 룰렛 이벤트에 참여하고 상품을 받아보세요!",
+  title: "워크리뷰 행운의 박스",
+  description: "워크리뷰 행운의 박스 이벤트에 참여하고 상품을 받아보세요!",
   generator: "v0.app",
   icons: {
     icon: "/favicon.ico",
