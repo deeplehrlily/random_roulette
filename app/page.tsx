@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,6 @@ interface Prize {
   name: string
   inventory: number
   color: string
-  angle: number
   demandLink: string
   emoji: string
 }
@@ -23,7 +22,6 @@ export default function KoreanRoulette() {
       name: "츄파츕스",
       inventory: 1494,
       color: "#FF6B6B",
-      angle: 0,
       demandLink: "https://example.com/chupachups",
       emoji: "🍭",
     },
@@ -31,7 +29,6 @@ export default function KoreanRoulette() {
       name: "네이버페이 상품권 1천원",
       inventory: 320,
       color: "#6CD1E8",
-      angle: 0,
       demandLink: "https://example.com/naverpay",
       emoji: "💳",
     },
@@ -39,7 +36,6 @@ export default function KoreanRoulette() {
       name: "교촌치킨 허니 기프티콘",
       inventory: 55,
       color: "#FFE66D",
-      angle: 0,
       demandLink: "https://example.com/kyochon",
       emoji: "🍗",
     },
@@ -51,13 +47,13 @@ export default function KoreanRoulette() {
     email: "",
   })
 
-  const [isSpinning, setIsSpinning] = useState(false)
+  const [isSelecting, setIsSelecting] = useState(false)
   const [winner, setWinner] = useState<Prize | null>(null)
-  const [rotation, setRotation] = useState(0)
   const [showForm, setShowForm] = useState(false)
   const [showResult, setShowResult] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
-  const wheelRef = useRef<HTMLDivElement>(null)
+  const [selectedBox, setSelectedBox] = useState<number | null>(null)
+  const [hasParticipated, setHasParticipated] = useState(false)
 
   useEffect(() => {
     const totalInventory = prizes.reduce((sum, prize) => sum + prize.inventory, 0)
@@ -86,20 +82,46 @@ export default function KoreanRoulette() {
     setFormData((prev) => ({ ...prev, phone: formatted }))
   }
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!formData.name || !formData.phone || !formData.email) {
       alert("모든 정보를 입력해주세요!")
       return
     }
-    setShowForm(false)
-    spinWheel()
+
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzidh5mXl6j0T68oqoJCdS5HlTxAaBJGRqEi2HM4oSRDEzATJlkHvuKGW_y2V-u0c3SZg/exec",
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "addParticipant",
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            timestamp: new Date().toISOString(),
+          }),
+        },
+      )
+
+      setHasParticipated(true)
+      setShowForm(false)
+      console.log("Participant data saved to Google Sheets")
+    } catch (error) {
+      console.error("Failed to save participant data:", error)
+      alert("참여 정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.")
+      return
+    }
   }
 
-  const spinWheel = async () => {
-    setIsSpinning(true)
-    setWinner(null)
-    setShowResult(false)
-    setShowConfetti(false)
+  const handleBoxSelect = async (boxIndex: number) => {
+    if (isSelecting || !hasParticipated) return
+
+    setSelectedBox(boxIndex)
+    setIsSelecting(true)
 
     const totalInventory = prizes.reduce((sum, prize) => sum + prize.inventory, 0)
     const random = Math.random() * totalInventory
@@ -116,13 +138,8 @@ export default function KoreanRoulette() {
       }
     }
 
-    const targetAngle = selectedPrize.angle + Math.random() * (360 / prizes.length)
-    const spinRotation = 1800 + targetAngle
-
-    setRotation((prev) => prev + spinRotation)
-
     setTimeout(async () => {
-      setIsSpinning(false)
+      setIsSelecting(false)
       setWinner(selectedPrize)
       setShowResult(true)
       setShowConfetti(true)
@@ -175,7 +192,7 @@ export default function KoreanRoulette() {
         console.error("Failed to save to Google Sheets:", error)
         alert("당첨 정보 저장 중 오류가 발생했습니다. 고객센터로 문의해주세요.")
       }
-    }, 3000)
+    }, 2000)
   }
 
   const totalInventory = prizes.reduce((sum, prize) => sum + prize.inventory, 0)
@@ -227,115 +244,74 @@ export default function KoreanRoulette() {
             <span className="text-xl sm:text-2xl">🎁</span>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
-            워크리뷰 행운의 룰렛
+            워크리뷰 행운의 박스
           </h1>
           <p className="text-gray-600 text-base sm:text-lg">참여하고 상품을 받아보세요</p>
         </div>
 
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 backdrop-blur-sm border border-white/50">
-          <div className="relative w-64 sm:w-72 lg:w-80 h-64 sm:h-72 lg:h-80 mx-auto mb-6 sm:mb-8">
-            <div
-              ref={wheelRef}
-              className="w-full h-full relative z-10"
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                transition: isSpinning ? "transform 3s cubic-bezier(0.23, 1, 0.32, 1)" : "none",
-              }}
-            >
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 320 320"
-                className="drop-shadow-xl"
-                style={{ maxWidth: "320px", maxHeight: "320px" }}
-              >
-                <defs>
-                  <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#000000" floodOpacity="0.1" />
-                  </filter>
-                </defs>
-
-                <circle cx="160" cy="160" r="155" fill="#6CD1E8" />
-                <circle cx="160" cy="160" r="140" fill="white" />
-
-                {prizes.map((prize, index) => {
-                  const totalInventory = prizes.reduce((sum, p) => sum + p.inventory, 0)
-                  const proportion = prize.inventory / totalInventory
-                  const startAngle = prizes
-                    .slice(0, index)
-                    .reduce((sum, p) => sum + (p.inventory / totalInventory) * 360, 0)
-                  const endAngle = startAngle + proportion * 360
-
-                  const startAngleRad = (startAngle - 90) * (Math.PI / 180)
-                  const endAngleRad = (endAngle - 90) * (Math.PI / 180)
-
-                  const x1 = 160 + 140 * Math.cos(startAngleRad)
-                  const y1 = 160 + 140 * Math.sin(startAngleRad)
-                  const x2 = 160 + 140 * Math.cos(endAngleRad)
-                  const y2 = 160 + 140 * Math.sin(endAngleRad)
-
-                  const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
-
-                  const pathData = [
-                    `M 160 160`,
-                    `L ${x1} ${y1}`,
-                    `A 140 140 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                    `Z`,
-                  ].join(" ")
-
-                  const textAngleRad = ((startAngle + endAngle) / 2 - 90) * (Math.PI / 180)
-                  const emojiX = 160 + 60 * Math.cos(textAngleRad)
-                  const emojiY = 160 + 60 * Math.sin(textAngleRad)
-
-                  return (
-                    <g key={index}>
-                      <path d={pathData} fill="white" stroke="#E5E7EB" strokeWidth="1" filter="url(#shadow)" />
-                      <clipPath id={`clip-${index}`}>
-                        <path d={pathData} />
-                      </clipPath>
-                      <text
-                        x={emojiX}
-                        y={emojiY}
-                        fontSize="36"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        opacity="0.15"
-                        fill="#6CD1E8"
-                        clipPath={`url(#clip-${index})`}
-                      >
-                        {prize.emoji}
-                      </text>
-                    </g>
-                  )
-                })}
-
-                <circle cx="160" cy="160" r="35" fill="#6CD1E8" filter="url(#shadow)" />
-                <text
-                  x="160"
-                  y="160"
-                  fill="white"
-                  fontSize="14"
-                  fontWeight="700"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                >
-                  START
-                </text>
-              </svg>
+          {hasParticipated && !isSelecting && selectedBox === null ? (
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">선물상자를 선택하세요!</h2>
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-md mx-auto">
+                {[0, 1, 2].map((boxIndex) => (
+                  <button
+                    key={boxIndex}
+                    onClick={() => handleBoxSelect(boxIndex)}
+                    className="group relative bg-gradient-to-br from-[#6CD1E8] to-[#4F9CF9] rounded-2xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-2"
+                  >
+                    <div className="text-4xl sm:text-5xl mb-2 group-hover:animate-bounce">🎁</div>
+                    <div className="text-xs sm:text-sm font-semibold text-white opacity-80">{boxIndex + 1}번</div>
+                    <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+                ))}
+              </div>
             </div>
-
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 z-20">
-              <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[20px] border-l-transparent border-r-transparent border-b-[#6CD1E8] drop-shadow-lg"></div>
+          ) : hasParticipated && isSelecting ? (
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">선물상자를 여는 중...</h2>
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-md mx-auto">
+                {[0, 1, 2].map((boxIndex) => (
+                  <div
+                    key={boxIndex}
+                    className={`relative bg-gradient-to-br rounded-2xl p-6 sm:p-8 shadow-xl transition-all duration-500 ${
+                      boxIndex === selectedBox
+                        ? "from-yellow-400 to-orange-500 animate-pulse scale-110"
+                        : "from-gray-300 to-gray-400 opacity-50"
+                    }`}
+                  >
+                    <div className={`text-4xl sm:text-5xl mb-2 ${boxIndex === selectedBox ? "animate-bounce" : ""}`}>
+                      {boxIndex === selectedBox ? "✨" : "🎁"}
+                    </div>
+                    <div className="text-xs sm:text-sm font-semibold text-white opacity-80">{boxIndex + 1}번</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : !hasParticipated ? (
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">먼저 참여하기 버튼을 눌러주세요!</h2>
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-md mx-auto">
+                {[0, 1, 2].map((boxIndex) => (
+                  <div
+                    key={boxIndex}
+                    className="relative bg-gray-300 rounded-2xl p-6 sm:p-8 shadow-xl opacity-50 cursor-not-allowed"
+                  >
+                    <div className="text-4xl sm:text-5xl mb-2">🎁</div>
+                    <div className="text-xs sm:text-sm font-semibold text-gray-600 opacity-80">{boxIndex + 1}번</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogTrigger asChild>
               <Button
-                disabled={isSpinning || totalInventory === 0}
-                className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-8 sm:px-12 py-2 sm:py-3 rounded-full text-base sm:text-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+                disabled={isSelecting || totalInventory === 0 || hasParticipated}
+                className="bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold px-8 sm:px-12 py-2 sm:py-3 rounded-full text-base sm:text-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSpinning ? "돌리는 중..." : "참여하기"}
+                {hasParticipated ? "참여 완료" : isSelecting ? "선택 중..." : "참여하기"}
               </Button>
             </DialogTrigger>
 
@@ -388,7 +364,7 @@ export default function KoreanRoulette() {
                   onClick={handleFormSubmit}
                   className="w-full bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] hover:from-[#5BC5E3] hover:to-[#3B82F6] text-white font-semibold py-3 rounded-lg mt-6 h-12"
                 >
-                  룰렛 돌리기
+                  참여 정보 저장하기
                 </Button>
               </div>
             </DialogContent>
@@ -405,7 +381,7 @@ export default function KoreanRoulette() {
                 <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-r from-[#6CD1E8] to-[#4F9CF9] rounded-full mx-auto mb-4 flex items-center justify-center animate-bounce shadow-xl">
                   <span className="text-2xl sm:text-3xl">{winner.emoji}</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">츄파츕스</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{winner.name}</h3>
                 <p className="text-gray-600 mb-6">당첨되었습니다!</p>
                 <Button
                   onClick={() => window.open("https://www.dmand.co.kr/", "_blank")}
